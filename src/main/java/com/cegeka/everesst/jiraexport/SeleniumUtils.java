@@ -21,7 +21,7 @@ public class SeleniumUtils {
                 .collect(Collectors.joining());
     }
 
-    private void waitABit(double n) {
+    public static void waitABit(double n) {
         try {
             TimeUnit.MILLISECONDS.sleep((long) (n * 1000));
         } catch (InterruptedException e) {

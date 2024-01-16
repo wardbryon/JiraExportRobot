@@ -1,7 +1,7 @@
 package com.cegeka.everesst.jiraexport;
 
-import com.cegeka.everesst.jiraexport.session.LoginDriver;
 import com.cegeka.everesst.jiraexport.export.JiraExportDriver;
+import com.cegeka.everesst.jiraexport.session.LoginDriver;
 import org.openqa.selenium.WebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -10,9 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
-import static java.time.LocalDate.parse;
-
-@SpringBootApplication(scanBasePackages = "com.cegeka.everesst.tempocloudsync.*")
+@SpringBootApplication(scanBasePackages = "com.cegeka.everesst.jiraexport.*")
 @EnableConfigurationProperties
 public class ClickBotApplication implements CommandLineRunner {
     @Autowired
