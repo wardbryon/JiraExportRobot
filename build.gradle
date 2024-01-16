@@ -1,0 +1,51 @@
+import java.util.regex.Matcher
+
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.1.2'
+    id 'io.spring.dependency-management' version '1.1.0'
+    id 'maven-publish'
+}
+
+group "$groupId"
+version "$version"
+sourceCompatibility = '17'
+
+repositories {
+    mavenCentral()
+}
+
+bootJar {
+    archiveBaseName = "everesst-validated-wages-robot-app"
+    archiveVersion =  "$version-FINAL"
+}
+
+
+tasks.withType(GenerateMavenPom).all {
+    doLast {
+        File file = new File("$buildDir/publications/gpr/pom-default.xml")
+        def text = file.text
+        def pattern = "(?s)(<dependencyManagement>.+?<dependencies>)(.+?)(</dependencies>.+?</dependencyManagement>)"
+        Matcher matcher = text =~ pattern
+        if (matcher.find()) {
+            text = text.replaceFirst(pattern, "")
+            def firstDeps = matcher.group(2)
+            text = text.replaceFirst(pattern, '$1$2' + firstDeps + '$3')
+        }
+        file.write(text)
+    }
+}
+
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.seleniumhq.selenium:selenium-java:4.12.1'
+    implementation 'org.springframework.boot:spring-boot-starter-logging:3.1.2'
+    implementation 'io.github.bonigarcia:webdrivermanager:5.5.3'
+    implementation 'org.jsoup:jsoup:1.17.1'
+
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

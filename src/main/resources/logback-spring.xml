@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<configuration>
+    <springProperty name="destination" source="destination.logging.file"/>
+    <springProperty name="validated-wages" source="validated-wages.logging.file"/>
+    <springProperty name="rootLevel" source="logging.level.root"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%date{"yyyy-MM-dd'T'HH:mm:ss,SSSZZZ"} [%thread] %-5level %logger{35} - %msg %n</pattern>
+        </encoder>
+    </appender>
+    <appender name="VALIDATED_WAGES" class="ch.qos.logback.core.FileAppender">
+        <file>${validated-wages}</file>
+        <append>true</append>
+        <encoder>
+            <pattern>%msg %n</pattern>
+        </encoder>
+    </appender>
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${destination}</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logFile.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>8</maxHistory>
+        </rollingPolicy>
+
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>100MB</maxFileSize>
+        </triggeringPolicy>
+        <encoder>
+            <pattern>%date{"yyyy-MM-dd'T'HH:mm:ss,SSSZZZ"} [%thread] %-5level %logger{35} - %msg %n</pattern>
+        </encoder>
+    </appender>
+    <!-- additivity=false ensures analytics data only goes to the analytics log -->
+    <root level="${rootLevel}" >
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="STDOUT"/>
+    </root>
+    <logger name="ValidatedWages" level="INFO" additivity="false">
+        <appender-ref ref="VALIDATED_WAGES"/>
+    </logger>
+</configuration>
