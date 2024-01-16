@@ -13,10 +13,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
-
-import static java.time.LocalDateTime.now;
 
 @SpringBootApplication(scanBasePackages = "com.cegeka.everesst.jiraexport.*")
 @EnableConfigurationProperties
@@ -40,12 +37,12 @@ public class ClickBotApplication implements CommandLineRunner {
     public void run(String... args) {
         sessionManager.createSession(webDriver);
 
-        ZonedDateTime startTime = ZonedDateTime.now().minusMinutes(60); // LocalDateTime.now();
+        ZonedDateTime startTime = ZonedDateTime.now();//.minusMinutes(60); // LocalDateTime.now();
         logger.info("Starting export ", startTime);
-        //jiraExportDriver.sync(webDriver);
+        int parts = jiraExportDriver.sync(webDriver);
         ZonedDateTime endTime = ZonedDateTime.now(); //LocalDateTime.now();
         logger.info("Finished export ", endTime);
-        exportMerger.merge(startTime, endTime);
+        exportMerger.merge(parts, startTime, endTime);
 
         sessionManager.destroySession(webDriver);
     }

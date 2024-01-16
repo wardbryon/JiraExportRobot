@@ -1,5 +1,6 @@
 # JiraExportRobot
 Robot to export Jira tickets, since the Jira Cloud only allows exporting 1000 entries
+Since Jira Cloud is not allowing to change the CSV delimiter, the only option is to export as HTML and parse it.
 
 ## Run with
 VM Option :
