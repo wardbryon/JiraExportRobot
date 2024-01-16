@@ -37,8 +37,13 @@ public class JiraExportDriver {
 
         pagesPairStream.forEach(page ->
                             extractJqlQueryResult(webDriver,
-                                    "key >=" + keyPrefix+ "-" + page.getKey() + " AND key < " + keyPrefix + "-" + page.getValue() + " AND " + filter)
+                                    "key >=" + keyPrefix+ "-" + page.getKey() +
+                                        " AND key < " + keyPrefix + "-" + page.getValue() +
+                                        " AND " + filter)
                         );
+        extractJqlQueryResult(webDriver,
+                "key >=" + keyPrefix+ "-" + pages[pages.length-1] +
+                    " AND " + filter);
     }
 
     private static Stream<SimpleEntry<Integer, Integer>> createPairsStream(int[] numbers) {
@@ -58,6 +63,4 @@ public class JiraExportDriver {
         SeleniumUtils.waitUntilElementPresent(webDriver, By.xpath("//a[text()='Export CSV (my defaults)']"));
         webDriver.findElement(By.xpath("//a[text()='Export CSV (my defaults)']")).click();
     }
-
-
 }
