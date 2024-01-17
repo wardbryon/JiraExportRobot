@@ -18,6 +18,7 @@ import static com.cegeka.everesst.jiraexport.SeleniumUtils.*;
 @Component
 public class JiraExportDriver {
     private static final Logger logger = LoggerFactory.getLogger(JiraExportDriver.class);
+    public static final int WAIT_UNTIL_LAST_DOWNLOAD_IS_FINISHED = 60;
     @Value("${jira.filter.url}")
     private String filterUrl;
 
@@ -27,11 +28,11 @@ public class JiraExportDriver {
     private String keyPrefix;
     @Value("${jira.filter.pages}")
     private String filterPages;
-    private static By advancedSearchTextbox = By.id("advanced-search");
-    private static By searchButton = By.xpath("//button[text()='Search']");
-    private static By exportButton = By.id("jira-export-trigger");
-    private static By exportToCsv = By.xpath("//a[text()='Export CSV (my defaults)']");
-    private static By exportToHtml = By.xpath("//a[text()='Export HTML report (my defaults)']");
+    private static final By advancedSearchTextbox = By.id("advanced-search");
+    private static final By searchButton = By.xpath("//button[text()='Search']");
+    private static final By exportButton = By.id("jira-export-trigger");
+    private static final By exportToCsv = By.xpath("//a[text()='Export CSV (my defaults)']");
+    private static final By exportToHtml = By.xpath("//a[text()='Export HTML report (my defaults)']");
 
     public int sync(WebDriver webDriver) {
         webDriver.get(filterUrl);
@@ -48,7 +49,7 @@ public class JiraExportDriver {
         extractJqlQueryResult(webDriver,
                 "key >=" + keyPrefix+ "-" + pages[pages.length-1] +
                     " AND " + filter);
-        waitABit(120);
+        waitABit(WAIT_UNTIL_LAST_DOWNLOAD_IS_FINISHED);
         return createPaginationPairs(pages).toList().size() + 1;
     }
 
@@ -73,13 +74,14 @@ public class JiraExportDriver {
     private void exportAsHtmlAndCsvForEpicLinks(WebDriver webDriver) {
         logger.info("Exporting results as CSV & HTML");
         exportType(webDriver, exportToCsv);
+        waitABit(3);
         exportType(webDriver, exportToHtml);
     }
 
     private void exportType(WebDriver webDriver, By type) {
         webDriver.findElement(exportButton).click();
         waitABit(1.5);
-        waitUntilElementPresent(webDriver, exportToCsv);
-        webDriver.findElement(exportToCsv).click();
+        waitUntilElementPresent(webDriver, type);
+        webDriver.findElement(type).click();
     }
 }

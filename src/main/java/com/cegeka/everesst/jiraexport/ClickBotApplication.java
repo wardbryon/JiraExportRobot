@@ -21,7 +21,7 @@ public class ClickBotApplication implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(ClickBotApplication.class);
     @Autowired
-    private LoginDriver sessionManager;
+    private LoginDriver loginDriver;
     @Autowired
     private WebDriver webDriver;
     @Autowired
@@ -35,15 +35,15 @@ public class ClickBotApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        //sessionManager.createSession(webDriver);
+        loginDriver.createSession(webDriver);
 
-        ZonedDateTime startTime = ZonedDateTime.now().minusMinutes(90); // LocalDateTime.now();
-        logger.info("Starting export ", startTime);
-        //int parts = jiraExportDriver.sync(webDriver);
-        ZonedDateTime endTime = ZonedDateTime.now(); //LocalDateTime.now();
-        logger.info("Finished export ", endTime);
-        exportMerger.merge(22, startTime, endTime);
+        ZonedDateTime startTime = ZonedDateTime.now();
+        logger.info("Starting export {}", startTime);
+        int parts = jiraExportDriver.sync(webDriver);
+        ZonedDateTime endTime = ZonedDateTime.now();
+        logger.info("Finished export {}", endTime);
+        exportMerger.merge(parts, startTime, endTime);
 
-        //sessionManager.destroySession(webDriver);
+        loginDriver.destroySession(webDriver);
     }
 }
