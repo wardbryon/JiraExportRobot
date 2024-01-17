@@ -21,14 +21,16 @@ public class LoginDriver {
     private String url;
     @Value("${jira.login.mail.address}")
     private String mailAddress;
+    private By microsoftAuthButton = By.id("microsoft-auth-button");
+    private By jiraLoginButton = By.xpath("//span[@aria-label='Sign in']");
 
     public Set<Cookie> createSession(WebDriver webDriver) {
         try {
             webDriver.get(url);
-            webDriver.findElement(By.xpath("//span[@aria-label='Sign in']")).click();
+            webDriver.findElement(jiraLoginButton).click();
             logger.info("At the login page of Jira Cloud");
-            waitUntilElementPresent(webDriver, By.id("microsoft-auth-button"));
-            webDriver.findElement(By.id("microsoft-auth-button")).click();
+            waitUntilElementPresent(webDriver, microsoftAuthButton);
+            webDriver.findElement(microsoftAuthButton).click();
             waitUntilElementPresent(webDriver, By.xpath("//div[@data-test-id='" + mailAddress + "']"));
             webDriver.findElement(By.xpath("//div[@data-test-id='" + mailAddress + "']")).click();
             waitUntilArrivedAtPage(webDriver, url);
@@ -39,8 +41,6 @@ public class LoginDriver {
         }
         return Set.of();
     }
-
-
 
     public void destroySession(WebDriver webDriver) {
         webDriver.quit();

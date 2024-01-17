@@ -35,15 +35,15 @@ public class ClickBotApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        sessionManager.createSession(webDriver);
+        //sessionManager.createSession(webDriver);
 
-        ZonedDateTime startTime = ZonedDateTime.now();//.minusMinutes(60); // LocalDateTime.now();
+        ZonedDateTime startTime = ZonedDateTime.now().minusMinutes(90); // LocalDateTime.now();
         logger.info("Starting export ", startTime);
-        int parts = jiraExportDriver.sync(webDriver);
+        //int parts = jiraExportDriver.sync(webDriver);
         ZonedDateTime endTime = ZonedDateTime.now(); //LocalDateTime.now();
         logger.info("Finished export ", endTime);
-        exportMerger.merge(parts, startTime, endTime);
+        exportMerger.merge(22, startTime, endTime);
 
-        sessionManager.destroySession(webDriver);
+        //sessionManager.destroySession(webDriver);
     }
 }

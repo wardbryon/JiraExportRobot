@@ -27,12 +27,17 @@ public class JiraExportDriver {
     private String keyPrefix;
     @Value("${jira.filter.pages}")
     private String filterPages;
+    private static By advancedSearchTextbox = By.id("advanced-search");
+    private static By searchButton = By.xpath("//button[text()='Search']");
+    private static By exportButton = By.id("jira-export-trigger");
+    private static By exportToCsv = By.xpath("//a[text()='Export CSV (my defaults)']");
+    private static By exportToHtml = By.xpath("//a[text()='Export HTML report (my defaults)']");
 
     public int sync(WebDriver webDriver) {
         webDriver.get(filterUrl);
         int[] pages = Arrays.stream(filterPages.split(","))
                 .mapToInt(Integer::parseInt).toArray();
-        Stream<SimpleEntry<Integer, Integer>> pagesPairStream = createPairsStream(pages);
+        Stream<SimpleEntry<Integer, Integer>> pagesPairStream = createPaginationPairs(pages);
 
         pagesPairStream.forEach(page ->
                             extractJqlQueryResult(webDriver,
@@ -44,28 +49,37 @@ public class JiraExportDriver {
                 "key >=" + keyPrefix+ "-" + pages[pages.length-1] +
                     " AND " + filter);
         waitABit(120);
-        return createPairsStream(pages).toList().size() + 1;
+        return createPaginationPairs(pages).toList().size() + 1;
     }
 
-    private static Stream<SimpleEntry<Integer, Integer>> createPairsStream(int[] numbers) {
+    private Stream<SimpleEntry<Integer, Integer>> createPaginationPairs(int[] numbers) {
         return IntStream.range(0, numbers.length - 1)
                 .mapToObj(i -> new SimpleEntry<>(numbers[i], numbers[i + 1]));
     }
 
-    private static void extractJqlQueryResult(WebDriver webDriver, String jql) {
+    private void extractJqlQueryResult(WebDriver webDriver, String jql) {
         try{
             logger.info("Searching for {}", jql);
-            webDriver.findElement(By.id("advanced-search")).sendKeys(backspaceMultiple(100));
-            webDriver.findElement(By.id("advanced-search")).sendKeys(jql);
-            webDriver.findElement(By.xpath("//button[text()='Search']")).click();
+            webDriver.findElement(advancedSearchTextbox).sendKeys(backspaceMultiple(100));
+            webDriver.findElement(advancedSearchTextbox).sendKeys(jql);
+            webDriver.findElement(searchButton).click();
             waitABit(5);
-            logger.info("Exporting results");
-            webDriver.findElement(By.id("jira-export-trigger")).click();
-            waitABit(2);
-            waitUntilElementPresent(webDriver, By.xpath("//a[text()='Export CSV (my defaults)']"));
-            webDriver.findElement(By.xpath("//a[text()='Export HTML report (my defaults)']")).click();
+            exportAsHtmlAndCsvForEpicLinks(webDriver);
         }catch (Exception e){
             new EvidenceInCaseOfError().dumpEvidence(webDriver);
         }
+    }
+
+    private void exportAsHtmlAndCsvForEpicLinks(WebDriver webDriver) {
+        logger.info("Exporting results as CSV & HTML");
+        exportType(webDriver, exportToCsv);
+        exportType(webDriver, exportToHtml);
+    }
+
+    private void exportType(WebDriver webDriver, By type) {
+        webDriver.findElement(exportButton).click();
+        waitABit(1.5);
+        waitUntilElementPresent(webDriver, exportToCsv);
+        webDriver.findElement(exportToCsv).click();
     }
 }
