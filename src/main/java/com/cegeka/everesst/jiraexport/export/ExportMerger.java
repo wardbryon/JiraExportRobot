@@ -30,6 +30,10 @@ public class ExportMerger {
     public void merge(int parts, ZonedDateTime startTime, ZonedDateTime endTime) {
         List<Map<String, String>> jiraItemsFromHtml = htmlExportMerger.merge(parts, startTime, endTime);
         List<Map<String, String>> jiraItemsFromCsv = csvExportMerger.merge(parts, startTime, endTime);
+        if(jiraItemsFromCsv.size() != jiraItemsFromHtml.size()) {
+            logger.error("jiraItemsFromCsv {} and jiraItemsFromHtml {} should have the same size", jiraItemsFromCsv.size(), jiraItemsFromHtml.size());
+            throw new RuntimeException("jiraItemsFromCsv and jiraItemsFromHtml should have the same size");
+        }
         insertEpicLinkKey(jiraItemsFromHtml, jiraItemsFromCsv);
         exportWriter.writeToFile(jiraItemsFromHtml);
     }
