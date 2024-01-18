@@ -9,12 +9,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.IntStream.range;
 
 @Component
 public class ExportWriter {
@@ -24,15 +24,26 @@ public class ExportWriter {
     private String downloadLocation;
     @Value("${export.columns}")
     private String columnsToExport;
+    @Value("${export.columns.treatment}")
+    private String columnsToExportTreatment;
     @Value("${csv.seperator}")
     private String csvSeperator;
 
+
+
     public void writeToFile(List<Map<String, String>> allRows) {
+        List<String> columns = stream(columnsToExport.split(",")).toList();
+        List<ExportColumnsTreatment> columnsTreatment = stream(columnsToExportTreatment.split(",")).map(ExportColumnsTreatment::valueOf).toList();
+        if(columns.size() != columnsTreatment.size()) {
+            logger.error("columns {} and columnsTreatment {} should have the same size", columns.size(), columnsTreatment.size());
+            throw new RuntimeException("columns and columnsTreatment should have the same size");
+        }
+
         List<String> lines = allRows.stream()
-                .map(row -> writeRow(columnsToExport.split(","), row))
+                .map(row -> writeRow(columns, columnsTreatment, row))
                 .sorted()
                 .toList();
-        String header = writeHeader(columnsToExport.split(","));
+        String header = writeHeader(columns);
         ArrayList<String> toSave = new ArrayList<>(lines);
         toSave.add(0, header);
         String filePath = downloadLocation + "/" + EXPORT_FILE_NAME;
@@ -44,17 +55,22 @@ public class ExportWriter {
         }
     }
 
-    private String writeHeader(String[] columnsToExport) {
-        return Arrays.stream(columnsToExport).collect(joining(csvSeperator));
+    private String writeHeader(List<String> columnsToExport) {
+        return columnsToExport.stream().collect(joining(csvSeperator));
     }
 
-    private String writeRow(String[] columns, Map<String, String> row) {
-        return stream(columns).map(column -> {
-            if (row.containsKey(column)) {
-                return row.get(column);
-            }
-            return "";
-        }).collect(joining(csvSeperator));
+    private String writeRow(List<String> columns, List<ExportColumnsTreatment> columnsTreatment, Map<String, String> row) {
+        return range(0, columns.size())
+                .mapToObj(index -> {
+                    String column = columns.get(index);
+                    if (row.containsKey(column)) {
+                        ExportColumnsTreatment treatment = columnsTreatment.get(index);
+                        return treatment.treat(row.get(column));
+                    }
+                    return "";
+                })
+                .collect(joining(csvSeperator));
+
     }
 
 }

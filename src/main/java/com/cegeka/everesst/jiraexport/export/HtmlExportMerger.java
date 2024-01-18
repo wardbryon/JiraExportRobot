@@ -74,6 +74,7 @@ public class HtmlExportMerger {
         for (Element header : headerElements) {
             headers.add(header.text().trim());
         }
+        logger.info("headers parsed from HTML {}", headers);
         return headers;
     }
 }

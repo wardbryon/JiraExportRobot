@@ -59,6 +59,7 @@ public class CsvExportMerger {
         for (String header : headersFromCsv) {
             headers.add(header.trim());
         }
+        logger.info("headers parsed from CSV {}", headers);
         return headers;
     }
 
