@@ -14,11 +14,16 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.cegeka.everesst.jiraexport.SeleniumUtils.*;
+import static java.lang.Integer.parseInt;
 
 @Component
 public class JiraExportDriver {
     private static final Logger logger = LoggerFactory.getLogger(JiraExportDriver.class);
-    public static final int WAIT_UNTIL_LAST_DOWNLOAD_IS_FINISHED = 60;
+    @Value("${browser.wait.for.download}")
+    public String waitUntilLastDownloadIsFinished;
+
+    @Value("${browser.wait.between.exports}")
+    public String waitBetweenExports;
     @Value("${jira.filter.url}")
     private String filterUrl;
 
@@ -49,7 +54,7 @@ public class JiraExportDriver {
         extractJqlQueryResult(webDriver,
                 "key >=" + keyPrefix+ "-" + pages[pages.length-1] +
                     " AND " + filter);
-        waitABit(WAIT_UNTIL_LAST_DOWNLOAD_IS_FINISHED);
+        waitABit(waitUntilLastDownloadIsFinished());
         return createPaginationPairs(pages).toList().size() + 1;
     }
 
@@ -64,23 +69,32 @@ public class JiraExportDriver {
             webDriver.findElement(advancedSearchTextbox).sendKeys(backspaceMultiple(300));
             webDriver.findElement(advancedSearchTextbox).sendKeys(jql);
             webDriver.findElement(searchButton).click();
-            waitABit(5);
+            waitABit(waitBetweenExports());
             exportAsHtmlAndCsvForEpicLinks(webDriver);
         }catch (Exception e){
             new EvidenceInCaseOfError().dumpEvidence(webDriver);
         }
     }
 
+    private int waitBetweenExports() {
+        return parseInt(waitBetweenExports);
+    }
+
+    private int waitUntilLastDownloadIsFinished() {
+        return parseInt(waitUntilLastDownloadIsFinished);
+    }
+
     private void exportAsHtmlAndCsvForEpicLinks(WebDriver webDriver) {
         logger.info("Exporting results as CSV & HTML");
-        exportType(webDriver, exportToCsv);
-        waitABit(3);
         exportType(webDriver, exportToHtml);
+        waitABit(waitBetweenExports());
+        exportType(webDriver, exportToCsv);
+        waitABit(waitBetweenExports());
     }
 
     private void exportType(WebDriver webDriver, By type) {
         webDriver.findElement(exportButton).click();
-        waitABit(1.5);
+        waitABit(waitBetweenExports());
         waitUntilElementPresent(webDriver, type);
         webDriver.findElement(type).click();
     }
