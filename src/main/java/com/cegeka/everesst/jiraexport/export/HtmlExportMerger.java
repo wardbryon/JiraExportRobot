@@ -43,7 +43,7 @@ public class HtmlExportMerger {
             List<String> strings = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
             String html = String.join("\n", strings);
             Document doc = Jsoup.parse(html);
-            logger.info("html file parsed");
+            logger.info("html file parsed {}", file.getName());
             return parseRows(doc, parseHeaders(doc));
         } catch (IOException e) {
             logger.error("Error reading file {}", file.toPath(), e);
