@@ -28,12 +28,12 @@ public enum ExportColumnsTreatment {
             }
         },
 
-    FIRST_ENTRY {
-        @Override
-        public String treat(String value) {
-            return value.split(",")[0].trim();
-        }
-    },
+        FIRST_ENTRY {
+            @Override
+            public String treat(String value) {
+                return value.split(",")[0].trim();
+            }
+        },
         ONE_ENTRY_VALIDATION {
             private static final Logger logger = LoggerFactory.getLogger(ExportColumnsTreatment.class);
             @Override

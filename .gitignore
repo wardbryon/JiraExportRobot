@@ -5,7 +5,7 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 !input-test.txt
-!credentials-test.properties
+
 
 ### STS ###
 .apt_generated
@@ -37,7 +37,7 @@ out/
 
 ### VS Code ###
 .vscode/
-/credentials-test.properties
+/credentials-lmac.properties
 /input-test.txt
 /log/validated-wages.log
 /log/clickrobot-app.log
@@ -46,3 +46,4 @@ out/
 /log/*.png
 /log/validated-wages.csv
 /custom-jre/
+/credentials-*.properties

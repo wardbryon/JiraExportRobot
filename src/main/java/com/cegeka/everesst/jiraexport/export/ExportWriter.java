@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static java.time.LocalDateTime.now;
+import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.IntStream.range;
@@ -19,14 +21,15 @@ import static java.util.stream.IntStream.range;
 @Component
 public class ExportWriter {
     private static final Logger logger = LoggerFactory.getLogger(ExportWriter.class);
-    public static final String EXPORT_FILE_NAME = "allJiraIssues.csv";
-    @Value("${download.location}")
+    @Value("${browser.download.location}")
     private String downloadLocation;
     @Value("${export.columns}")
     private String columnsToExport;
     @Value("${export.columns.treatment}")
     private String columnsToExportTreatment;
-    @Value("${csv.seperator}")
+    @Value("${export.filename}")
+    private String exportFileName;
+    @Value("${export.csv.seperator}")
     private String csvSeperator;
 
 
@@ -46,7 +49,7 @@ public class ExportWriter {
         String header = writeHeader(columns);
         ArrayList<String> toSave = new ArrayList<>(lines);
         toSave.add(0, header);
-        String filePath = downloadLocation + "/" + EXPORT_FILE_NAME;
+        String filePath = downloadLocation + "/" + now().format(ofPattern("yyyyMMddHHmm")) + exportFileName;
         try {
             Files.write(Paths.get(filePath), toSave);
         } catch (IOException e) {

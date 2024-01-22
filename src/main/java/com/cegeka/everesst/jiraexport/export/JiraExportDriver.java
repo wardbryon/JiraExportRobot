@@ -61,7 +61,7 @@ public class JiraExportDriver {
     private void extractJqlQueryResult(WebDriver webDriver, String jql) {
         try{
             logger.info("Searching for {}", jql);
-            webDriver.findElement(advancedSearchTextbox).sendKeys(backspaceMultiple(100));
+            webDriver.findElement(advancedSearchTextbox).sendKeys(backspaceMultiple(300));
             webDriver.findElement(advancedSearchTextbox).sendKeys(jql);
             webDriver.findElement(searchButton).click();
             waitABit(5);

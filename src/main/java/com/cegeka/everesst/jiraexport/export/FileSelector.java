@@ -14,8 +14,11 @@ import static java.util.Arrays.stream;
 @Component
 public class FileSelector {
     private static final Logger logger = LoggerFactory.getLogger(FileSelector.class);
-    @Value("${download.location}")
+    @Value("${browser.download.location}")
     private String downloadLocation;
+
+    @Value("${export.filename}")
+    private String exportFileName;
 
     public static final String HTML = ".html";
     public static final String CSV = ".csv";
@@ -26,8 +29,9 @@ public class FileSelector {
         List<File> downloadedFiles = stream(files)
                 .filter(file -> file.lastModified() > startTime.toEpochSecond() * 1000)
                 .filter(file -> file.lastModified() < endTime.toEpochSecond() * 1000)
-                .filter(file -> !file.getName().startsWith(ExportWriter.EXPORT_FILE_NAME))
+                .filter(file -> !file.getName().endsWith(exportFileName))
                 .toList();
+        logger.info("Selected files {}", downloadedFiles.stream().map(File::getName).toList());
         if (downloadedFiles.size() != expectedFileParts) {
             logger.error("Not all parts are downloaded, expected {} but got {}", expectedFileParts, downloadedFiles.size());
             logger.error("Continuing with the parts that are downloaded");

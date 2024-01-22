@@ -38,10 +38,14 @@ public class CsvExportMerger {
             if (records.isEmpty()) return null;
 
             List<String> headers = parseHeaders(records.get(0));
-            return records.stream()
+            if(headers.contains(CSV_FORMAT_EPIC_LINK_KEY)){
+                return records.stream()
                     .skip(1)
                     .map(line -> mapValues(headers, line))
                     .toList();
+            }else{
+                return new ArrayList<>();
+            }
         } catch (Exception e) {
             logger.error("Error reading file {}", file.getPath(), e);
             throw new RuntimeException(e);
