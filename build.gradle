@@ -29,7 +29,7 @@ publishing {
     publications {
         gpr(MavenPublication) {
             groupId = "$groupId"
-            artifactId = "everesst_clickbot"
+            artifactId = "jira_exportbot"
             version = "$version"
 
             artifact bootJar
