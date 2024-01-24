@@ -16,7 +16,7 @@ repositories {
 }
 
 bootJar {
-    archiveBaseName = "everesst-validated-wages-robot-app"
+    archiveBaseName = "jira-export-robot-app"
     archiveVersion =  "$version-FINAL"
 }
 
