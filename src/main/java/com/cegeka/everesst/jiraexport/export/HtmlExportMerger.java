@@ -19,8 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.stream.Collectors.joining;
-
 @Component
 public class HtmlExportMerger {
     public static final String HTML_FORMAT_ISSUE_KEY = "Key";
@@ -65,6 +63,7 @@ public class HtmlExportMerger {
             }
             rows.add(rowMap);
         }
+        logger.info("File parsed with {} entries", rows.size());
         return rows;
     }
 

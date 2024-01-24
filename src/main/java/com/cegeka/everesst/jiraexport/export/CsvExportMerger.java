@@ -39,11 +39,13 @@ public class CsvExportMerger {
 
             List<String> headers = parseHeaders(records.get(0));
             if(headers.contains(CSV_FORMAT_EPIC_LINK_KEY)){
+                logger.info("{} column found, parsing {} entries", CSV_FORMAT_EPIC_LINK_KEY, records.size()-1);
                 return records.stream()
                     .skip(1)
                     .map(line -> mapValues(headers, line))
                     .toList();
             }else{
+                logger.info("No {} column found, skipping parsing", CSV_FORMAT_EPIC_LINK_KEY);
                 return new ArrayList<>();
             }
         } catch (Exception e) {

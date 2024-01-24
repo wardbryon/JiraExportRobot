@@ -34,6 +34,7 @@ public class ExportMerger {
             logger.error("jiraItemsFromCsv {} and jiraItemsFromHtml {} should have the same size", jiraItemsFromCsv.size(), jiraItemsFromHtml.size());
             throw new RuntimeException("jiraItemsFromCsv and jiraItemsFromHtml should have the same size");
         }
+        logger.info("Total of {} entries found", jiraItemsFromHtml.size());
         insertEpicLinkKey(jiraItemsFromHtml, jiraItemsFromCsv);
         exportWriter.writeToFile(jiraItemsFromHtml);
     }
