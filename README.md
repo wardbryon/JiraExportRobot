@@ -30,4 +30,3 @@ FIRST_ENTRY (only the first entry will be kept),
 ONE_ENTRY_VALIDATION (all entries will be kept but an error will be logged)
 LAST_ENTRY_ALPHABETICAL_SORT (after sorting alphabetically, the last entry will be kept, this is mainly useful for the Sprint column)
 For this it is important that the next chronological sprint is alphabetically behind the previous one.
-    
