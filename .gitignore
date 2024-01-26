@@ -37,7 +37,7 @@ out/
 
 ### VS Code ###
 .vscode/
-/credentials-lmac.properties
+/credentials-lmac-issues.properties
 /input-test.txt
 /log/validated-wages.log
 /log/clickrobot-app.log
