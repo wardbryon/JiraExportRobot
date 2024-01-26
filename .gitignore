@@ -37,13 +37,7 @@ out/
 
 ### VS Code ###
 .vscode/
-/credentials-lmac-issues.properties
 /input-test.txt
-/log/validated-wages.log
-/log/clickrobot-app.log
-/everesst_clickbot-1.0.*
-/log/*.html
-/log/*.png
-/log/validated-wages.csv
 /custom-jre/
 /credentials-*.properties
+/log/jiraexport-app.log

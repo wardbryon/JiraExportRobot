@@ -3,8 +3,6 @@ package com.cegeka.everesst.jiraexport;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.cegeka.everesst.jiraexport.export.ExportWriter;
 import com.cegeka.everesst.jiraexport.rest.SearchForIssuesUsingJQL;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.WebApplicationType;
