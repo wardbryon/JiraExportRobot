@@ -33,6 +33,7 @@ public class SearchForIssuesUsingJQL {
             int total = searchResult.getTotal();
             logger.info("Total of {} entries found", total);
             while(startAt < total) {
+                logger.info("Retrieving entries, percentage done: {}%", (startAt * 100) / total);
                 searchResultPromise =
                         jiraRestClient.getSearchClient()
                                 .searchJql(jiraQuery, MAX_RESULTS_DEFINED_BY_JIRA_API, startAt,null);
