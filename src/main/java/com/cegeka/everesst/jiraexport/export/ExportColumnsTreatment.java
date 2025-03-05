@@ -37,6 +37,20 @@ public enum ExportColumnsTreatment {
                 return "";
             }
         },
+        CUSTOM_FIELD_DOUBLE_COMMA {
+            @Override
+            public String treat(Issue issue, String column) {
+                IssueField field = issue.getFieldByName(column);
+                if(field == null){
+                    return "";
+                }
+                Double doubleValue = (Double) field.getValue();
+                if( doubleValue == null){
+                    return "";
+                }
+                return String.valueOf(doubleValue).replace(".", ",");
+            }
+        },
         CUSTOM_FIELD_DOUBLE {
             @Override
             public String treat(Issue issue, String column) {
@@ -68,6 +82,15 @@ public enum ExportColumnsTreatment {
             @Override
             public String treat(Issue value, String column) {
                 return value.getSummary();
+            }
+        },
+        ASSIGNEE {
+            @Override
+            public String treat(Issue value, String column) {
+                if(value.getAssignee() == null){
+                    return "";
+                }
+                return value.getAssignee().getEmailAddress();
             }
         },
         ISSUE_TYPE {
