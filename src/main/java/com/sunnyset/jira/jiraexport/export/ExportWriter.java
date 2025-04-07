@@ -31,6 +31,11 @@ public class ExportWriter {
     private String exportFileName;
     @Value("${export.csv.seperator}")
     private String csvSeperator;
+    @Value("${export.number.seperator}")
+    private String numberSeperator;
+
+    record ExportConfig(String numberSeperator){
+    }
 
     private String writeHeader(List<String> columnsToExport) {
         return columnsToExport.stream().collect(joining(csvSeperator));
@@ -42,7 +47,7 @@ public class ExportWriter {
                     String column = columns.get(index);
                         ExportColumnsTreatment treatment = columnsTreatment.get(index);
                         try{
-                            return treatment.treat(issue, column);
+                            return treatment.treat(issue, column, new ExportConfig(numberSeperator));
                         } catch (Exception e) {
                             logger.error("Error treating column {} with treatment {}", column, treatment, e);
                             throw new RuntimeException(e);

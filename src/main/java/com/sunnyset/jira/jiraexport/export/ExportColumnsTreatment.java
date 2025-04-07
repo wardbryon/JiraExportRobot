@@ -18,7 +18,7 @@ public enum ExportColumnsTreatment {
 
         CUSTOM_FIELD_STRING {
             @Override
-            public String treat(Issue issue, String column) throws Exception {
+            public String treat(Issue issue, String column, ExportWriter.ExportConfig exportConfig) throws Exception {
                 IssueField field = issue.getFieldByName(column);
                 if(field == null){
                     return "";
@@ -35,23 +35,9 @@ public enum ExportColumnsTreatment {
                 return "";
             }
         },
-        CUSTOM_FIELD_DOUBLE_COMMA {
-            @Override
-            public String treat(Issue issue, String column) {
-                IssueField field = issue.getFieldByName(column);
-                if(field == null){
-                    return "";
-                }
-                Double doubleValue = (Double) field.getValue();
-                if( doubleValue == null){
-                    return "";
-                }
-                return String.valueOf(doubleValue).replace(".", ",");
-            }
-        },
         CUSTOM_FIELD_DOUBLE {
             @Override
-            public String treat(Issue issue, String column) {
+            public String treat(Issue issue, String column, ExportWriter.ExportConfig exportConfig) {
                 IssueField field = issue.getFieldByName(column);
                 if(field == null){
                     return "";
@@ -60,31 +46,30 @@ public enum ExportColumnsTreatment {
                 if( doubleValue == null){
                     return "";
                 }
-                return String.valueOf(doubleValue);
+                return String.valueOf(doubleValue).replace(".", exportConfig.numberSeperator());
             }
         },
-
         KEY {
             @Override
-            public String treat(Issue value, String column) {
+            public String treat(Issue value, String column, ExportWriter.ExportConfig exportConfig) {
                 return value.getKey();
             }
         },
         STATUS {
             @Override
-            public String treat(Issue value, String column) {
+            public String treat(Issue value, String column, ExportWriter.ExportConfig exportConfig) {
                 return value.getStatus().getName();
             }
         },
         SUMMARY {
             @Override
-            public String treat(Issue value, String column) {
+            public String treat(Issue value, String column, ExportWriter.ExportConfig exportConfig) {
                 return value.getSummary();
             }
         },
         ASSIGNEE {
             @Override
-            public String treat(Issue value, String column) {
+            public String treat(Issue value, String column, ExportWriter.ExportConfig exportConfig) {
                 if(value.getAssignee() == null){
                     return "";
                 }
@@ -93,7 +78,7 @@ public enum ExportColumnsTreatment {
         },
         REPORTER {
             @Override
-            public String treat(Issue value, String column) {
+            public String treat(Issue value, String column, ExportWriter.ExportConfig exportConfig) {
                 if(value.getAssignee() == null){
                     return "";
                 }
@@ -102,7 +87,7 @@ public enum ExportColumnsTreatment {
         },
         LAST_SPRINT {
             @Override
-            public String treat(Issue issue, String column) throws Exception {
+            public String treat(Issue issue, String column, ExportWriter.ExportConfig exportConfig) throws Exception {
                 IssueField field = issue.getFieldByName(column);
                 if(field == null){
                     return "";
@@ -125,7 +110,7 @@ public enum ExportColumnsTreatment {
         },
         PARENT_KEY {
             @Override
-            public String treat(Issue issue, String column) throws Exception {
+            public String treat(Issue issue, String column, ExportWriter.ExportConfig exportConfig) throws Exception {
                 IssueField field = issue.getFieldByName(column);
                 if(field == null){
                     return "";
@@ -139,7 +124,7 @@ public enum ExportColumnsTreatment {
         },
         LINKED_ISSUE_PARENT_OF {
             @Override
-            public String treat(Issue issue, String column) {
+            public String treat(Issue issue, String column, ExportWriter.ExportConfig exportConfig) {
                 AtomicReference<String> returnValue = new AtomicReference<>("");
                 issue.getIssueLinks().forEach(issueLink -> {
                     if(issueLink.getIssueLinkType().getName().equals("Parent/Child") && issueLink.getIssueLinkType().getDescription().equals("is the child of ")
@@ -152,13 +137,13 @@ public enum ExportColumnsTreatment {
         },
         ISSUE_TYPE {
             @Override
-            public String treat(Issue value, String column) {
+            public String treat(Issue value, String column, ExportWriter.ExportConfig exportConfig) {
                 return value.getIssueType().getName();
             }
         },
         CUSTOM_FIELD_LAST_ENTRY_ALPHABETICAL_SORT{
             @Override
-            public String treat(Issue issue, String column) throws Exception  {
+            public String treat(Issue issue, String column, ExportWriter.ExportConfig exportConfig) throws Exception  {
                 JSONArray jsonArray = (JSONArray) issue.getFieldByName(column).getValue();
                 if(jsonArray == null || jsonArray.length() == 0){
                     return "";
@@ -173,7 +158,7 @@ public enum ExportColumnsTreatment {
         FIX_VERSION_ONE_ENTRY_VALIDATION {
             private static final Logger logger = LoggerFactory.getLogger(ExportColumnsTreatment.class);
             @Override
-            public String treat(Issue issue, String column) {
+            public String treat(Issue issue, String column, ExportWriter.ExportConfig exportConfig) {
                 List<Version> versionsList = stream(issue.getFixVersions().spliterator(), false)
                         .sorted(Comparator.comparing(Version::getId))
                         .toList();
@@ -186,7 +171,7 @@ public enum ExportColumnsTreatment {
             }
         };
 
-        public abstract String treat(Issue issue, String column) throws Exception;
+        public abstract String treat(Issue issue, String column, ExportWriter.ExportConfig exportConfig) throws Exception;
 
 
 }
