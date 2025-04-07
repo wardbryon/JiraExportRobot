@@ -37,16 +37,21 @@ public enum ExportColumnsTreatment {
         },
         CUSTOM_FIELD_DOUBLE {
             @Override
-            public String treat(Issue issue, String column, ExportWriter.ExportConfig exportConfig) {
+            public String treat(Issue issue, String column, ExportWriter.ExportConfig exportConfig) throws Exception{
                 IssueField field = issue.getFieldByName(column);
                 if(field == null){
                     return "";
                 }
-                Double doubleValue = (Double) field.getValue();
-                if( doubleValue == null){
+                Object value = issue.getFieldByName(column).getValue();
+                if(value instanceof Number){
+                    return String.valueOf(value).replace(".", exportConfig.numberSeperator());
+                }else if(value instanceof JSONObject jsonObject){
+                    if (jsonObject.has("value")) {
+                        return String.valueOf(jsonObject.getDouble("value")).replace(".", exportConfig.numberSeperator());
+                    }
                     return "";
                 }
-                return String.valueOf(doubleValue).replace(".", exportConfig.numberSeperator());
+                return "";
             }
         },
         KEY {
