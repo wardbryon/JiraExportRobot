@@ -1,4 +1,4 @@
-package com.cegeka.everesst.jiraexport.rest;
+package com.sunnyset.jira.jiraexport.rest;
 
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.JiraRestClientFactory;

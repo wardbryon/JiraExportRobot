@@ -1,4 +1,4 @@
-package com.cegeka.everesst.jiraexport.export;
+package com.sunnyset.jira.jiraexport.export;
 
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import org.slf4j.Logger;
@@ -23,6 +23,8 @@ public class ExportWriter {
     private static final Logger logger = LoggerFactory.getLogger(ExportWriter.class);
     @Value("${export.columns}")
     private String columnsToExport;
+    @Value("${export.columns.names}")
+    private String columnNamesForHeader;
     @Value("${export.columns.treatment}")
     private String columnsToExportTreatment;
     @Value("${export.filename}")
@@ -51,9 +53,10 @@ public class ExportWriter {
 
     public void writeToFileSystem(List<Issue> issues) {
         List<String> columns = stream(columnsToExport.split(",")).toList();
+        List<String> columnNames = stream(columnNamesForHeader.split(",")).toList();
         List<ExportColumnsTreatment> columnsTreatment = stream(columnsToExportTreatment.split(",")).map(ExportColumnsTreatment::valueOf).toList();
-        if(columns.size() != columnsTreatment.size()) {
-            logger.error("columns {} and columnsTreatment {} should have the same size", columns.size(), columnsTreatment.size());
+        if(columns.size() != columnsTreatment.size() || columnNames.size() != columnsTreatment.size()) {
+            logger.error("columns {} and columnsTreatment {} and columnNames {} should have the same size", columns.size(), columnsTreatment.size(), columnNames.size());
             throw new RuntimeException("columns and columnsTreatment should have the same size");
         }
 
@@ -61,7 +64,7 @@ public class ExportWriter {
                 .map(issue -> writeRow(columns, columnsTreatment, issue))
                 .sorted()
                 .toList();
-        String header = writeHeader(columns);
+        String header = writeHeader(columnNames);
         writeToFileSystem(lines, header);
     }
 

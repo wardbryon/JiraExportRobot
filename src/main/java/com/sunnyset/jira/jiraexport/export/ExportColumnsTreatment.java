@@ -1,17 +1,16 @@
-package com.cegeka.everesst.jiraexport.export;
+package com.sunnyset.jira.jiraexport.export;
 
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.IssueField;
+import com.atlassian.jira.rest.client.api.domain.IssueLinkType;
 import com.atlassian.jira.rest.client.api.domain.Version;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static java.util.stream.StreamSupport.stream;
 
@@ -27,12 +26,11 @@ public enum ExportColumnsTreatment {
                 Object value = issue.getFieldByName(column).getValue();
                 if(value instanceof String){
                     return (String) value;
-                }else if(value instanceof JSONObject){
-                    JSONObject jsonObject = (JSONObject) value;
-                    if(!jsonObject.has("value")){
-                        return "";
+                }else if(value instanceof JSONObject jsonObject){
+                    if (jsonObject.has("value")) {
+                        return jsonObject.getString("value");
                     }
-                    return jsonObject.getString("value");
+                    return "";
                 }
                 return "";
             }
@@ -91,6 +89,65 @@ public enum ExportColumnsTreatment {
                     return "";
                 }
                 return value.getAssignee().getEmailAddress();
+            }
+        },
+        REPORTER {
+            @Override
+            public String treat(Issue value, String column) {
+                if(value.getAssignee() == null){
+                    return "";
+                }
+                return value.getAssignee().getEmailAddress();
+            }
+        },
+        LAST_SPRINT {
+            @Override
+            public String treat(Issue issue, String column) throws Exception {
+                IssueField field = issue.getFieldByName(column);
+                if(field == null){
+                    return "";
+                }
+                Object value = issue.getFieldByName(column).getValue();
+                if(value instanceof JSONArray jsonArraySprint){
+                    Map<Integer,String> map = new HashMap<>();
+                    if(jsonArraySprint.length() == 0){
+                        return "";
+                    }
+                    for (int i =0; i < jsonArraySprint.length(); i++) {
+                        map.put(jsonArraySprint.getJSONObject(i).getInt("id"), jsonArraySprint.getJSONObject(i).getString("name"));
+                    }
+                    // Taking the highest id, which is the last sprint
+                    OptionalInt max = map.keySet().stream().mapToInt(Integer::intValue).max();
+                    return max.getAsInt() + " - " + map.get(max.getAsInt());
+                }
+                return "";
+            }
+        },
+        PARENT_KEY {
+            @Override
+            public String treat(Issue issue, String column) throws Exception {
+                IssueField field = issue.getFieldByName(column);
+                if(field == null){
+                    return "";
+                }
+                Object value = issue.getFieldByName(column).getValue();
+                if(value instanceof JSONObject parentJsonObject){
+                    return parentJsonObject.getString("key");
+                }
+                return "";
+            }
+        },
+        LINKED_ISSUE_PARENT_OF {
+            @Override
+            public String treat(Issue issue, String column) {
+                AtomicReference<String> returnValue = new AtomicReference<>("");
+                issue.getIssueLinks().forEach(issueLink -> {
+                    if(issueLink.getIssueLinkType().getName().equals("Parent/Child") && issueLink.getIssueLinkType().getDescription().equals("is the child of ")
+                            && issueLink.getIssueLinkType().getDirection() == IssueLinkType.Direction.INBOUND){
+                        returnValue.set(issueLink.getTargetIssueKey());
+                    }
+                });
+                return returnValue.get();
             }
         },
         ISSUE_TYPE {

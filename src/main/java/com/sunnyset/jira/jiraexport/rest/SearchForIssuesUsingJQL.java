@@ -1,4 +1,4 @@
-package com.cegeka.everesst.jiraexport.rest;
+package com.sunnyset.jira.jiraexport.rest;
 
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.domain.Issue;
@@ -38,7 +38,7 @@ public class SearchForIssuesUsingJQL {
                         jiraRestClient.getSearchClient()
                                 .searchJql(jiraQuery, MAX_RESULTS_DEFINED_BY_JIRA_API, startAt,null);
                 searchResult = searchResultPromise.claim();
-                searchResult.getIssues().forEach(issue -> result.add(issue));
+                searchResult.getIssues().forEach(result::add);
                 startAt += MAX_RESULTS_DEFINED_BY_JIRA_API;
             }
         } catch(Exception e) {
