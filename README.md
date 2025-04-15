@@ -29,8 +29,11 @@ jira.api.user= email address
 jira.api.token= your API token (see above)
 jira.filter= JQL filter to use
 export.columns= The columns to export
+export.columns.names= The column headers
 export.columns.treatment= How to treat the columns, this is the same order as the export.columns. Possible values are described below.
-export.csv.seperator=^
+export.format.csv.seperator=^
+export.format.number.seperator=,
+export.format.date=dd/MM/yyyy
 export.filename=File path to write the CSV file to
 
 ## ExportColumnsTreatment possibilities

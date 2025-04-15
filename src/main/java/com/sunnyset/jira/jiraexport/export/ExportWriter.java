@@ -29,47 +29,50 @@ public class ExportWriter {
     private String columnsToExportTreatment;
     @Value("${export.filename}")
     private String exportFileName;
-    @Value("${export.csv.seperator}")
+    @Value("${export.format.csv.seperator}")
     private String csvSeperator;
-    @Value("${export.number.seperator}")
+    @Value("${export.format.number.seperator}")
     private String numberSeperator;
+    @Value("${export.format.date}")
+    private String dateFormat;
 
-    record ExportConfig(String numberSeperator){
+    record ExportConfig(String csvSeperator, String numberSeperator, String dateFormat){
     }
 
-    private String writeHeader(List<String> columnsToExport) {
-        return columnsToExport.stream().collect(joining(csvSeperator));
+    private String writeHeader(ExportConfig exportConfig, List<String> columnsToExport) {
+        return columnsToExport.stream().collect(joining(exportConfig.csvSeperator));
     }
 
-    private String writeRow(List<String> columns, List<ExportColumnsTreatment> columnsTreatment, Issue issue) {
+    private String writeRow(ExportConfig exportConfig, List<String> columns, List<ExportColumnsTreatment> columnsTreatment, Issue issue) {
         return range(0, columns.size())
                 .mapToObj(index -> {
                     String column = columns.get(index);
                         ExportColumnsTreatment treatment = columnsTreatment.get(index);
                         try{
-                            return treatment.treat(issue, column, new ExportConfig(numberSeperator));
+                            return treatment.treat(issue, column, exportConfig);
                         } catch (Exception e) {
                             logger.error("Error treating column {} with treatment {}", column, treatment, e);
                             throw new RuntimeException(e);
                         }
                 })
-                .collect(joining(csvSeperator));
+                .collect(joining(exportConfig.csvSeperator));
     }
 
     public void writeToFileSystem(List<Issue> issues) {
+        ExportConfig exportConfig = new ExportConfig(csvSeperator, numberSeperator, dateFormat);
         List<String> columns = stream(columnsToExport.split(",")).toList();
         List<String> columnNames = stream(columnNamesForHeader.split(",")).toList();
         List<ExportColumnsTreatment> columnsTreatment = stream(columnsToExportTreatment.split(",")).map(ExportColumnsTreatment::valueOf).toList();
         if(columns.size() != columnsTreatment.size() || columnNames.size() != columnsTreatment.size()) {
             logger.error("columns {} and columnsTreatment {} and columnNames {} should have the same size", columns.size(), columnsTreatment.size(), columnNames.size());
-            throw new RuntimeException("columns and columnsTreatment should have the same size");
+            throw new RuntimeException("columns, column names and columnsTreatment should have the same size");
         }
 
         List<String> lines = issues.stream()
-                .map(issue -> writeRow(columns, columnsTreatment, issue))
+                .map(issue -> writeRow(exportConfig, columns, columnsTreatment, issue))
                 .sorted()
                 .toList();
-        String header = writeHeader(columnNames);
+        String header = writeHeader(exportConfig, columnNames);
         writeToFileSystem(lines, header);
     }
 

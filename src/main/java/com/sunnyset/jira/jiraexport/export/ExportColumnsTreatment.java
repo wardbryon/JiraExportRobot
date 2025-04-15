@@ -6,9 +6,12 @@ import com.atlassian.jira.rest.client.api.domain.IssueLinkType;
 import com.atlassian.jira.rest.client.api.domain.Version;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
+import org.joda.time.format.DateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -146,6 +149,29 @@ public enum ExportColumnsTreatment {
                 return value.getIssueType().getName();
             }
         },
+        CUSTOM_FIELD_DATE {
+            @Override
+            public String treat(Issue issue, String column, ExportWriter.ExportConfig exportConfig) {
+                IssueField field = issue.getFieldByName(column);
+                if(field == null){
+                    return "";
+                }
+                Object value = field.getValue();
+                if(value == null){
+                    return "";
+                }else{
+                    LocalDate date = LocalDate.parse(field.getValue().toString());
+                    DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern(exportConfig.dateFormat());
+                    return date.format(outputFormatter);
+                }
+            }
+        },
+        DUE_DATE {
+            @Override
+            public String treat(Issue issue, String column, ExportWriter.ExportConfig exportConfig) {
+                return DateTimeFormat.forPattern(exportConfig.dateFormat()).print(issue.getDueDate());
+            }
+        },
         CUSTOM_FIELD_LAST_ENTRY_ALPHABETICAL_SORT{
             @Override
             public String treat(Issue issue, String column, ExportWriter.ExportConfig exportConfig) throws Exception  {
@@ -175,6 +201,7 @@ public enum ExportColumnsTreatment {
                         .map(Version::getName).findFirst().orElse("");
             }
         };
+
 
         public abstract String treat(Issue issue, String column, ExportWriter.ExportConfig exportConfig) throws Exception;
 
