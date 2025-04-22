@@ -59,6 +59,7 @@ public class ExportWriter {
     }
 
     public void writeToFileSystem(List<Issue> issues) {
+        logger.info("Writing {} issues to file system in file {}", issues.size(), exportFileName);
         ExportConfig exportConfig = new ExportConfig(csvSeperator, numberSeperator, dateFormat);
         List<String> columns = stream(columnsToExport.split(",")).toList();
         List<String> columnNames = stream(columnNamesForHeader.split(",")).toList();
