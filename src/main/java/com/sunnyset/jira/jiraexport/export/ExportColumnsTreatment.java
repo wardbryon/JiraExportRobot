@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import static java.util.stream.StreamSupport.stream;
 
@@ -172,6 +173,12 @@ public enum ExportColumnsTreatment {
                 return DateTimeFormat.forPattern(exportConfig.dateFormat()).print(issue.getDueDate());
             }
         },
+        LABELS {
+            @Override
+            public String treat(Issue issue, String column, ExportWriter.ExportConfig exportConfig) {
+                return issue.getLabels().stream().sorted().collect(Collectors.joining(exportConfig.numberSeperator()));
+            }
+        },
         CUSTOM_FIELD_LAST_ENTRY_ALPHABETICAL_SORT{
             @Override
             public String treat(Issue issue, String column, ExportWriter.ExportConfig exportConfig) throws Exception  {
@@ -201,6 +208,7 @@ public enum ExportColumnsTreatment {
                         .map(Version::getName).findFirst().orElse("");
             }
         };
+
 
 
         public abstract String treat(Issue issue, String column, ExportWriter.ExportConfig exportConfig) throws Exception;
