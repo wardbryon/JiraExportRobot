@@ -35,6 +35,15 @@ public enum ExportColumnsTreatment {
                         return jsonObject.getString("value");
                     }
                     return "";
+                }else if (value instanceof JSONArray jsonArray){
+                    StringBuilder stringBuilder = new StringBuilder();
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        stringBuilder.append(jsonArray.getJSONObject(i).getString("value"));
+                        if (i != jsonArray.length() - 1) {
+                            stringBuilder.append(exportConfig.numberSeperator());
+                        }
+                    }
+                    return stringBuilder.toString();
                 }
                 return "";
             }
