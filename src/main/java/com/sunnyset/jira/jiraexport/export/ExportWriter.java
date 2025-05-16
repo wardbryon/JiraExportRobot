@@ -55,7 +55,7 @@ public class ExportWriter {
                             throw new RuntimeException(e);
                         }
                 })
-                .map(s -> s.replace(exportConfig.csvSeperator, " "))
+                .map(s -> s != null ? s.replace(exportConfig.csvSeperator, " ") : s)
                 .collect(joining(exportConfig.csvSeperator));
     }
 
