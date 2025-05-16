@@ -202,6 +202,15 @@ public enum ExportColumnsTreatment {
                 return map.get(map.keySet().stream().sorted().toList().get(map.keySet().size()-1));
             }
         },
+        FIX_VERSIONS {
+            @Override
+            public String treat(Issue issue, String column, ExportWriter.ExportConfig exportConfig) {
+                return stream(issue.getFixVersions().spliterator(), false)
+                        .sorted(Comparator.comparing(Version::getName))
+                        .map(Version::getName)
+                        .collect(Collectors.joining(exportConfig.numberSeperator()));
+            }
+        },
         FIX_VERSION_ONE_ENTRY_VALIDATION {
             private static final Logger logger = LoggerFactory.getLogger(ExportColumnsTreatment.class);
             @Override
