@@ -39,6 +39,6 @@ out/
 .vscode/
 /input-test.txt
 /custom-jre/
-/credentials-*.properties
+/luminus-*.properties
 /log/jiraexport-app.log
-/exports/*.*
+/exports/*

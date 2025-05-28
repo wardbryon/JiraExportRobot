@@ -17,7 +17,7 @@ import java.util.List;
 public class JiraExportApplication implements CommandLineRunner {
 
     @Autowired
-    private SearchForIssuesUsingJQL issueFieldsGetFields;
+    private SearchForIssuesUsingJQL exportIssuesUsingJql;
     @Autowired
     private ExportWriter exportWriter;
 
@@ -27,7 +27,7 @@ public class JiraExportApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        List<Issue> queryResult = issueFieldsGetFields.findAll();
+        List<Issue> queryResult = exportIssuesUsingJql.findAll();
         exportWriter.writeToFileSystem(queryResult);
     }
 }

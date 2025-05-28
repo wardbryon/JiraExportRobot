@@ -29,18 +29,18 @@ public class ExportWriter {
     private String columnsToExportTreatment;
     @Value("${export.filename}")
     private String exportFileName;
-    @Value("${export.format.csv.seperator}")
-    private String csvSeperator;
-    @Value("${export.format.number.seperator}")
-    private String numberSeperator;
+    @Value("${export.format.csv.separator}")
+    private String csvSeparator;
+    @Value("${export.format.number.separator}")
+    private String numberSeparator;
     @Value("${export.format.date}")
     private String dateFormat;
 
-    record ExportConfig(String csvSeperator, String numberSeperator, String dateFormat){
+    record ExportConfig(String csvSeparator, String numberSeparator, String dateFormat){
     }
 
     private String writeHeader(ExportConfig exportConfig, List<String> columnsToExport) {
-        return columnsToExport.stream().collect(joining(exportConfig.csvSeperator));
+        return columnsToExport.stream().collect(joining(exportConfig.csvSeparator));
     }
 
     private String writeRow(ExportConfig exportConfig, List<String> columns, List<ExportColumnsTreatment> columnsTreatment, Issue issue) {
@@ -55,13 +55,13 @@ public class ExportWriter {
                             throw new RuntimeException(e);
                         }
                 })
-                .map(s -> s != null ? s.replace(exportConfig.csvSeperator, " ") : s)
-                .collect(joining(exportConfig.csvSeperator));
+                .map(s -> s != null ? s.replace(exportConfig.csvSeparator, " ") : s)
+                .collect(joining(exportConfig.csvSeparator));
     }
 
     public void writeToFileSystem(List<Issue> issues) {
         logger.info("Writing {} issues to file system in file {}", issues.size(), exportFileName);
-        ExportConfig exportConfig = new ExportConfig(csvSeperator, numberSeperator, dateFormat);
+        ExportConfig exportConfig = new ExportConfig(csvSeparator, numberSeparator, dateFormat);
         List<String> columns = stream(columnsToExport.split(",")).toList();
         List<String> columnNames = stream(columnNamesForHeader.split(",")).toList();
         List<ExportColumnsTreatment> columnsTreatment = stream(columnsToExportTreatment.split(",")).map(ExportColumnsTreatment::valueOf).toList();

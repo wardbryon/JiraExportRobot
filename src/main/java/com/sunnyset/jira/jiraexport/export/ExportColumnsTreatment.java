@@ -40,7 +40,7 @@ public enum ExportColumnsTreatment {
                     for (int i = 0; i < jsonArray.length(); i++) {
                         stringBuilder.append(jsonArray.getJSONObject(i).getString("value"));
                         if (i != jsonArray.length() - 1) {
-                            stringBuilder.append(exportConfig.numberSeperator());
+                            stringBuilder.append(exportConfig.numberSeparator());
                         }
                     }
                     return stringBuilder.toString();
@@ -57,10 +57,10 @@ public enum ExportColumnsTreatment {
                 }
                 Object value = issue.getFieldByName(column).getValue();
                 if(value instanceof Number){
-                    return String.valueOf(value).replace(".", exportConfig.numberSeperator());
+                    return String.valueOf(value).replace(".", exportConfig.numberSeparator());
                 }else if(value instanceof JSONObject jsonObject){
                     if (jsonObject.has("value")) {
-                        return String.valueOf(jsonObject.getDouble("value")).replace(".", exportConfig.numberSeperator());
+                        return String.valueOf(jsonObject.getDouble("value")).replace(".", exportConfig.numberSeparator());
                     }
                     return "";
                 }
@@ -185,7 +185,7 @@ public enum ExportColumnsTreatment {
         LABELS {
             @Override
             public String treat(Issue issue, String column, ExportWriter.ExportConfig exportConfig) {
-                return issue.getLabels().stream().sorted().collect(Collectors.joining(exportConfig.numberSeperator()));
+                return issue.getLabels().stream().sorted().collect(Collectors.joining(exportConfig.numberSeparator()));
             }
         },
         CUSTOM_FIELD_LAST_ENTRY_ALPHABETICAL_SORT{
@@ -208,7 +208,7 @@ public enum ExportColumnsTreatment {
                 return stream(issue.getFixVersions().spliterator(), false)
                         .sorted(Comparator.comparing(Version::getName))
                         .map(Version::getName)
-                        .collect(Collectors.joining(exportConfig.numberSeperator()));
+                        .collect(Collectors.joining(exportConfig.numberSeparator()));
             }
         },
         FIX_VERSION_ONE_ENTRY_VALIDATION {
