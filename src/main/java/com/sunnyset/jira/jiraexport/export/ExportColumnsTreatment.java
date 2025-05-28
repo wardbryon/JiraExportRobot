@@ -185,7 +185,7 @@ public enum ExportColumnsTreatment {
         LABELS {
             @Override
             public String treat(Issue issue, String column, ExportWriter.ExportConfig exportConfig) {
-                return issue.getLabels().stream().sorted().collect(Collectors.joining(exportConfig.numberSeparator()));
+                return issue.getLabels().stream().sorted().collect(Collectors.joining(exportConfig.listSeparator()));
             }
         },
         CUSTOM_FIELD_LAST_ENTRY_ALPHABETICAL_SORT{
@@ -208,7 +208,7 @@ public enum ExportColumnsTreatment {
                 return stream(issue.getFixVersions().spliterator(), false)
                         .sorted(Comparator.comparing(Version::getName))
                         .map(Version::getName)
-                        .collect(Collectors.joining(exportConfig.numberSeparator()));
+                        .collect(Collectors.joining(exportConfig.listSeparator()));
             }
         },
         FIX_VERSION_ONE_ENTRY_VALIDATION {

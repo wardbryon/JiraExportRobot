@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
-@SpringBootApplication(scanBasePackages = "com.sunnyset.csv.excelimport.*")
+@SpringBootApplication(scanBasePackages = "com.sunnyset.csv.excelimport")
 @EnableConfigurationProperties
 public class CsvToExcelImporterApplication implements CommandLineRunner {
 

@@ -33,10 +33,12 @@ public class ExportWriter {
     private String csvSeparator;
     @Value("${export.format.number.separator}")
     private String numberSeparator;
+    @Value("${export.format.list.separator}")
+    private String listSeparator;
     @Value("${export.format.date}")
     private String dateFormat;
 
-    record ExportConfig(String csvSeparator, String numberSeparator, String dateFormat){
+    record ExportConfig(String csvSeparator, String numberSeparator, String dateFormat, String listSeparator){
     }
 
     private String writeHeader(ExportConfig exportConfig, List<String> columnsToExport) {
@@ -61,7 +63,7 @@ public class ExportWriter {
 
     public void writeToFileSystem(List<Issue> issues) {
         logger.info("Writing {} issues to file system in file {}", issues.size(), exportFileName);
-        ExportConfig exportConfig = new ExportConfig(csvSeparator, numberSeparator, dateFormat);
+        ExportConfig exportConfig = new ExportConfig(csvSeparator, numberSeparator, dateFormat, listSeparator);
         List<String> columns = stream(columnsToExport.split(",")).toList();
         List<String> columnNames = stream(columnNamesForHeader.split(",")).toList();
         List<ExportColumnsTreatment> columnsTreatment = stream(columnsToExportTreatment.split(",")).map(ExportColumnsTreatment::valueOf).toList();

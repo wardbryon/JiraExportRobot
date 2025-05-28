@@ -18,6 +18,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
 
 @Component
 public class CsvToExcelImporter {
@@ -25,6 +26,8 @@ public class CsvToExcelImporter {
 
     @Value("${csv.separator}")
     private String csvSeparator;
+    @Value("${csv.format.number.separator}")
+    private String numberSeparator;
     @Value("${excel.file.input}")
     private String excelInputFile;
     @Value("${excel.file.output}")
@@ -32,7 +35,7 @@ public class CsvToExcelImporter {
     @Value("${csv.sheet.mappings}")
     private String csvSheetMappings;
 
-    record CsvSheetMapping(String csvPath, int startRowInput, String sheetName, int startRowOutput) {
+    record CsvSheetMapping(String csvPath, int skipRowInput, String sheetName, int skipRowOutput) {
     }
 
     public void importCsvToExcel() {
@@ -45,7 +48,7 @@ public class CsvToExcelImporter {
     }
 
     private List<CsvSheetMapping> parseMappings(String csvSheetMappings) {
-        return Arrays.stream(csvSheetMappings.split(" \\| "))
+        return Arrays.stream(csvSheetMappings.split(Pattern.quote(" | ")))
                 .map(mapping -> {
                     String[] parts = mapping.split(",");
                     if (parts.length != 4) {
@@ -70,6 +73,8 @@ public class CsvToExcelImporter {
             insertCsvIntoWorkbookSheet(mapping, workbook);
         }
 
+        workbook.setForceFormulaRecalculation(true);
+
         FileOutputStream fos = new FileOutputStream(excelOutputFile);
         workbook.write(fos);
         workbook.close();
@@ -85,23 +90,35 @@ public class CsvToExcelImporter {
             throw new IllegalArgumentException("Sheet not found: " + mapping.sheetName);
         }
 
-        AtomicInteger outputRowNum = new AtomicInteger(mapping.startRowOutput);
+        AtomicInteger outputRowNum = new AtomicInteger(mapping.skipRowOutput);
         Files.readAllLines(Paths.get(mapping.csvPath)).stream()
-                .skip(mapping.startRowInput - 1)
+                .skip(mapping.skipRowInput)
                 .forEach(line -> processCsvLine(line, sheet, outputRowNum));
     }
 
     private void processCsvLine(String line, Sheet sheet, AtomicInteger outputRowNum) {
-        String[] values = line.split(csvSeparator);
+        String[] values = line.split(Pattern.quote(csvSeparator));
         Row row = sheet.getRow(outputRowNum.get());
         if (row == null) row = sheet.createRow(outputRowNum.get());
 
         for (int col = 0; col < values.length; col++) {
+            String value = values[col].trim();
             Cell cell = row.getCell(col);
             if (cell == null) cell = row.createCell(col);
-            cell.setCellValue(values[col].trim());
+
+            if (isANumber(value)) {
+                cell.setCellValue(Double.parseDouble(value.replace(numberSeparator, ".")));
+            } else {
+                cell.setCellValue(value);
+            }
+
         }
         outputRowNum.getAndIncrement();
+    }
+
+    private boolean isANumber(String value) {
+        String pattern = "-?\\d+(" + Pattern.quote(numberSeparator) + "\\d+)?";
+        return value.matches(pattern);
     }
 
 }
