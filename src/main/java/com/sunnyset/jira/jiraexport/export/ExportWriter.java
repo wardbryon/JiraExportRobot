@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -83,12 +84,19 @@ public class ExportWriter {
     private void writeToFileSystem(List<String> lines, String header) {
         ArrayList<String> toSave = new ArrayList<>(lines);
         toSave.add(0, header);
-        String filePath = "exports/" + now().format(ofPattern("yyyyMMddHHmm ")) + exportFileName;
+        List<String> filePaths = List.of(exportFileName, timestamp(exportFileName));
         try {
-            Files.write(Paths.get(filePath), toSave);
+            for (String filePath : filePaths) {
+                Files.write(Paths.get(filePath), toSave);
+            }
         } catch (IOException e) {
-            logger.error("Error writing to file {}", filePath, e);
+            logger.error("Error writing to files {}", filePaths, e);
             throw new RuntimeException(e);
         }
+    }
+
+    private String timestamp(String exportFileName) {
+        File file = new File(exportFileName);
+        return file.getParent() + "/" + now().format(ofPattern("yyyyMMddHHmm ")) + file.getName();
     }
 }
