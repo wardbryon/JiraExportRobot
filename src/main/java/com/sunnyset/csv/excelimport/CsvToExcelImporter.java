@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
 @Component
 public class CsvToExcelImporter {
     private static final Logger logger = LoggerFactory.getLogger(CsvToExcelImporter.class);
+    public static final int EMPTY_STRING_AS_LAST_SPLIT_VALUE = -1;
 
     @Value("${csv.separator}")
     private String csvSeparator;
@@ -48,9 +49,9 @@ public class CsvToExcelImporter {
     }
 
     private List<CsvSheetMapping> parseMappings(String csvSheetMappings) {
-        return Arrays.stream(csvSheetMappings.split(Pattern.quote(" | ")))
+        return Arrays.stream(csvSheetMappings.split(Pattern.quote(" | "), EMPTY_STRING_AS_LAST_SPLIT_VALUE))
                 .map(mapping -> {
-                    String[] parts = mapping.split(",");
+                    String[] parts = mapping.split(",", EMPTY_STRING_AS_LAST_SPLIT_VALUE);
                     if (parts.length != 4) {
                         throw new IllegalArgumentException("Invalid mapping format: " + mapping);
                     }
@@ -97,7 +98,7 @@ public class CsvToExcelImporter {
     }
 
     private void processCsvLine(String line, Sheet sheet, AtomicInteger outputRowNum) {
-        String[] values = line.split(Pattern.quote(csvSeparator));
+        String[] values = line.split(Pattern.quote(csvSeparator), EMPTY_STRING_AS_LAST_SPLIT_VALUE);
         Row row = sheet.getRow(outputRowNum.get());
         if (row == null) row = sheet.createRow(outputRowNum.get());
 
