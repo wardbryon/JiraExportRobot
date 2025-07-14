@@ -1,5 +1,6 @@
 package com.sunnyset.jira.jiraexport.rest;
 
+import com.atlassian.jira.rest.client.api.IssueRestClient;
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.SearchResult;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -21,6 +23,8 @@ public class SearchForIssuesUsingJQL {
     private JiraRestClient jiraRestClient;
     @Value("${jira.jql}")
     public String jiraQuery;
+    @Value("${jira.changelogs}")
+    public boolean includeChangeLogs;
 
     public List<Issue> findAll() {
         List<Issue> result = new ArrayList<>();
@@ -41,6 +45,16 @@ public class SearchForIssuesUsingJQL {
                 searchResult.getIssues().forEach(result::add);
                 startAt += MAX_RESULTS_DEFINED_BY_JIRA_API;
             }
+
+            if(includeChangeLogs){
+                List<Issue> enrichedResult = result.stream().map(
+                        basicIssue ->
+                                jiraRestClient.getIssueClient().getIssue(
+                                        basicIssue.getKey(), Arrays.asList(IssueRestClient.Expandos.CHANGELOG)
+                                ).claim()).toList();
+                return enrichedResult;
+            }
+
         } catch(Exception e) {
             logger.error("Error searching for result", e);
             throw new RuntimeException(e);
