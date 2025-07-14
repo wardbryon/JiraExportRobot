@@ -1,9 +1,6 @@
 package com.sunnyset.jira.jiraexport.export;
 
-import com.atlassian.jira.rest.client.api.domain.Issue;
-import com.atlassian.jira.rest.client.api.domain.IssueField;
-import com.atlassian.jira.rest.client.api.domain.IssueLinkType;
-import com.atlassian.jira.rest.client.api.domain.Version;
+import com.atlassian.jira.rest.client.api.domain.*;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 import org.joda.time.format.DateTimeFormat;
@@ -15,12 +12,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.stream.StreamSupport.stream;
 
 public enum ExportColumnsTreatment {
 
-        CUSTOM_FIELD_STRING {
+     CUSTOM_FIELD_STRING {
             @Override
             public String treat(Issue issue, String column, ExportWriter.ExportConfig exportConfig) throws Exception {
                 IssueField field = issue.getFieldByName(column);
@@ -200,6 +198,15 @@ public enum ExportColumnsTreatment {
                     map.put(jsonArray.getJSONObject(i).getLong("id"), jsonArray.getJSONObject(i).getString("name"));
                 }
                 return map.get(map.keySet().stream().sorted().toList().get(map.keySet().size()-1));
+            }
+        },
+        STATUS_TIME {
+            @Override
+            public String treat(Issue issue, String column, ExportWriter.ExportConfig exportConfig) {
+                if(issue.getChangelog() == null || issue.getChangelog().iterator().hasNext()){
+                    LoggerFactory.getLogger(ExportColumnsTreatment.class).error("You can only use STATUS_TIME if also the jira.changelogs=true");
+                }
+                return new StatusChangeCompute(issue.getChangelog()).timeInStatus(column);
             }
         },
         FIX_VERSIONS {

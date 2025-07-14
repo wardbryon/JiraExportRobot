@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
 public class SearchForIssuesUsingJQL {
@@ -32,30 +33,37 @@ public class SearchForIssuesUsingJQL {
             int startAt = 0;
             Promise<SearchResult> searchResultPromise =
                     jiraRestClient.getSearchClient()
-                                        .searchJql(jiraQuery, MAX_RESULTS_DEFINED_BY_JIRA_API, startAt,null);
+                            .searchJql(jiraQuery, MAX_RESULTS_DEFINED_BY_JIRA_API, startAt, null);
             SearchResult searchResult = searchResultPromise.claim();
             int total = searchResult.getTotal();
             logger.info("Total of {} entries found", total);
-            while(startAt < total) {
+            while (startAt < total) {
                 logger.info("Retrieving entries, percentage done: {}%", (startAt * 100) / total);
                 searchResultPromise =
                         jiraRestClient.getSearchClient()
-                                .searchJql(jiraQuery, MAX_RESULTS_DEFINED_BY_JIRA_API, startAt,null);
+                                .searchJql(jiraQuery, MAX_RESULTS_DEFINED_BY_JIRA_API, startAt, null);
                 searchResult = searchResultPromise.claim();
                 searchResult.getIssues().forEach(result::add);
                 startAt += MAX_RESULTS_DEFINED_BY_JIRA_API;
             }
 
-            if(includeChangeLogs){
+            if (includeChangeLogs) {
+                logger.info("Including changelogs for each entry...");
+                AtomicInteger counter = new AtomicInteger();
                 List<Issue> enrichedResult = result.stream().map(
-                        basicIssue ->
-                                jiraRestClient.getIssueClient().getIssue(
-                                        basicIssue.getKey(), Arrays.asList(IssueRestClient.Expandos.CHANGELOG)
-                                ).claim()).toList();
+                        basicIssue -> {
+                            counter.getAndIncrement();
+                            if(counter.get()%10 == 0){
+                                logger.info("Retrieving changelogs, percentage done: {}%", (counter.get() * 100) / total);
+                            }
+                            return jiraRestClient.getIssueClient().getIssue(
+                                    basicIssue.getKey(), Arrays.asList(IssueRestClient.Expandos.CHANGELOG)
+                            ).claim();
+                        }).toList();
                 return enrichedResult;
             }
 
-        } catch(Exception e) {
+        } catch (Exception e) {
             logger.error("Error searching for result", e);
             throw new RuntimeException(e);
         }
