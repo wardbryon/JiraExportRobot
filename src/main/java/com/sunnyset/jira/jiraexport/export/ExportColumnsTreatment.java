@@ -203,8 +203,9 @@ public enum ExportColumnsTreatment {
         STATUS_TIME {
             @Override
             public String treat(Issue issue, String column, ExportWriter.ExportConfig exportConfig) {
-                if(issue.getChangelog() == null || issue.getChangelog().iterator().hasNext()){
-                    LoggerFactory.getLogger(ExportColumnsTreatment.class).error("You can only use STATUS_TIME if also the jira.changelogs=true");
+                if(issue.getChangelog() == null || !issue.getChangelog().iterator().hasNext()){
+                    LoggerFactory.getLogger(ExportColumnsTreatment.class).error("No change logs present");
+                    return "";
                 }
                 return new StatusChangeCompute(issue.getChangelog()).timeInStatus(column);
             }
@@ -234,9 +235,6 @@ public enum ExportColumnsTreatment {
             }
         };
 
-
-
         public abstract String treat(Issue issue, String column, ExportWriter.ExportConfig exportConfig) throws Exception;
-
 
 }

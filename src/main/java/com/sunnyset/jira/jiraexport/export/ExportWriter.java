@@ -54,7 +54,7 @@ public class ExportWriter {
                         try{
                             return treatment.treat(issue, column, exportConfig);
                         } catch (Exception e) {
-                            logger.error("Error treating column {} with treatment {}", column, treatment, e);
+                            logger.error("Error treating column {} with treatment {} for issue {}", column, treatment, e, issue.getKey());
                             throw new RuntimeException(e);
                         }
                 })

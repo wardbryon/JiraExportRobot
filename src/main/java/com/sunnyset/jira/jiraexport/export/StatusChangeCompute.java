@@ -84,6 +84,7 @@ public class StatusChangeCompute {
     }
 
     private DateTime created() {
+        if(changelogGroups.isEmpty()) return new DateTime();
         return changelogGroups.get(changelogGroups.size()-1).getCreated();
     }
 
