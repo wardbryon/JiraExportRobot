@@ -42,10 +42,10 @@ public class StatusChangeCompute {
         List<StatusDuration> result = new ArrayList<>();
 
         ZonedDateTime prevTime = asZonedDateTime(created.toDate());
-        String prevStatus = "Created";
+        String prevStatus = "";
 
         for (StatusChange change : changes) {
-            result.add(new StatusDuration(prevStatus, Duration.between(prevTime, change.changedAt)));
+            result.add(new StatusDuration(change.fromStatus, Duration.between(prevTime, change.changedAt)));
             prevTime = change.changedAt;
             prevStatus = change.toStatus;
         }
