@@ -4,6 +4,7 @@ import com.atlassian.jira.rest.client.api.IssueRestClient;
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.SearchResult;
+import com.atlassian.jira.rest.client.api.domain.TotalCount;
 import io.atlassian.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,55 +13,66 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toSet;
 
 @Component
 public class SearchForIssuesUsingJQL {
     private static final Logger logger = LoggerFactory.getLogger(SearchForIssuesUsingJQL.class);
-    public static final int MAX_RESULTS_DEFINED_BY_JIRA_API = 100;
     @Autowired
     private JiraRestClient jiraRestClient;
     @Value("${jira.jql}")
-    public String jiraQuery;
+    private String jiraQuery;
+    @Value("${export.columns.names}")
+    private String fields;
     @Value("${jira.changelogs}")
-    public boolean includeChangeLogs;
+    private boolean includeChangeLogs;
+
+    public static Set<String> defaultFieldsToReturnInQuery() {
+        return Set.of("created", "project", "updated");
+    }
+
+
 
     public List<Issue> findAll() {
         List<Issue> result = new ArrayList<>();
         try {
-            int startAt = 0;
-            Promise<SearchResult> searchResultPromise =
-                    jiraRestClient.getSearchClient()
-                            .searchJql(jiraQuery, MAX_RESULTS_DEFINED_BY_JIRA_API, startAt, null);
-            SearchResult searchResult = searchResultPromise.claim();
-            int total = searchResult.getTotal();
+            Promise<TotalCount> totalCountPromise = jiraRestClient.getSearchClient().totalCount(jiraQuery);
+            int total = totalCountPromise.claim().getCount();
+
+            Set<String> fieldsToReturnInQuery = stream(fields.split(","))
+                                                    .map(s->s.replaceAll(" ","").toLowerCase())
+                                                    .collect(toSet());
+            fieldsToReturnInQuery.addAll(defaultFieldsToReturnInQuery());
             logger.info("Total of {} entries found", total);
-            while (startAt < total) {
-                logger.info("Retrieving entries, percentage done: {}%", (startAt * 100) / total);
-                searchResultPromise =
+            String nextPageToken = null;
+            while (result.size() < total) {
+                logger.info("Retrieving entries, percentage done: {}%", (result.size() * 100) / total);
+                Promise<SearchResult> searchResultPromise =
                         jiraRestClient.getSearchClient()
-                                .searchJql(jiraQuery, MAX_RESULTS_DEFINED_BY_JIRA_API, startAt, null);
-                searchResult = searchResultPromise.claim();
+                                .enhancedSearchJql(jiraQuery, null, nextPageToken, fieldsToReturnInQuery, null);
+                SearchResult searchResult = searchResultPromise.claim();
+                nextPageToken = searchResult.getNextPageToken();
                 searchResult.getIssues().forEach(result::add);
-                startAt += MAX_RESULTS_DEFINED_BY_JIRA_API;
             }
 
             if (includeChangeLogs) {
                 logger.info("Including changelogs for each entry...");
                 AtomicInteger counter = new AtomicInteger();
-                List<Issue> enrichedResult = result.stream().map(
+                return result.stream().map(
                         basicIssue -> {
                             counter.getAndIncrement();
                             if(counter.get()%10 == 0){
                                 logger.info("Retrieving changelogs, percentage done: {}%", (counter.get() * 100) / total);
                             }
                             return jiraRestClient.getIssueClient().getIssue(
-                                    basicIssue.getKey(), Arrays.asList(IssueRestClient.Expandos.CHANGELOG)
+                                    basicIssue.getKey(), List.of(IssueRestClient.Expandos.CHANGELOG)
                             ).claim();
                         }).toList();
-                return enrichedResult;
             }
 
         } catch (Exception e) {
