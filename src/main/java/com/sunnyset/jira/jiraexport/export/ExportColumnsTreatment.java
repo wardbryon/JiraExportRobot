@@ -127,15 +127,8 @@ public enum ExportColumnsTreatment {
         PARENT_KEY {
             @Override
             public String treat(Issue issue, String column, ExportWriter.ExportConfig exportConfig) throws Exception {
-                IssueField field = issue.getFieldByName(column);
-                if(field == null){
-                    return "";
-                }
-                Object value = issue.getFieldByName(column).getValue();
-                if(value instanceof JSONObject parentJsonObject){
-                    return parentJsonObject.getString("key");
-                }
-                return "";
+                RelativeTask parentTask = issue.getParentTask();
+                return parentTask != null ? parentTask.getIssueKey() : "";
             }
         },
         LINKED_ISSUE_PARENT_OF {
