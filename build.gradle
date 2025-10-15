@@ -43,6 +43,10 @@ bootJar {
     archiveVersion =  "$version-FINAL"
 }
 
+springBoot {
+    mainClass = 'com.sunnyset.jira.jiraexport.JiraExportApplication'
+}
+
 
 tasks.withType(GenerateMavenPom).all {
     doLast {
