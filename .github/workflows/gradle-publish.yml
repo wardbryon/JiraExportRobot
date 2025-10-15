@@ -32,6 +32,10 @@ jobs:
     - name: Make gradlew executable
       run: chmod +x ./gradlew
 
+    - name: Set the version by tweaking the gradle.properties file
+      run: |
+        sed -i 's/version=0.0.0/version=${{ github.event.release.tag_name }}/' ${{ env.SRC_DIR }}gradle.properties
+
     - name: Build with Gradle
       uses: gradle/gradle-build-action@v3
       with:
