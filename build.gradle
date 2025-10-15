@@ -44,7 +44,7 @@ bootJar {
 }
 
 springBoot {
-    mainClass = 'com.sunnyset.jira.jiraexport.JiraExportApplication'
+    mainClass = "org.springframework.boot.loader.PropertiesLauncher"
 }
 
 

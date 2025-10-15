@@ -1,10 +1,7 @@
 package com.sunnyset.jira.jiraexport.rest;
 
-import com.atlassian.jira.rest.client.api.GetCreateIssueMetadataOptions;
-import com.atlassian.jira.rest.client.api.GetCreateIssueMetadataOptionsBuilder;
 import com.atlassian.jira.rest.client.api.IssueRestClient;
 import com.atlassian.jira.rest.client.api.JiraRestClient;
-import com.atlassian.jira.rest.client.api.domain.CimProject;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.SearchResult;
 import com.atlassian.jira.rest.client.api.domain.TotalCount;
@@ -15,11 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.toSet;
 
 @Component
 public class SearchForIssuesUsingJQL {
