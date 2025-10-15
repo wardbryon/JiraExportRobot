@@ -11,6 +11,12 @@ group "$groupId"
 version "$version"
 sourceCompatibility = '21'
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
 repositories {
     mavenCentral()
     maven { url "https://packages.atlassian.com/maven-public/" }
