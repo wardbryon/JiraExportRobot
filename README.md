@@ -1,28 +1,26 @@
-# JiraExportRobot
-Robot to export Jira tickets, since the Jira Cloud only allows exporting 1000 entries
+# Jira Export Tool
+Tool to export Jira tickets, since the Jira Cloud UI only allows exporting 1000 entries.
 
-## Uses the jira-rest-java-client library
-https://docs.atlassian.com/jira-rest-java-client-parent/5.0.4/apidocs/com/atlassian/jira/rest/client/api/SearchRestClient.html#searchJql(java.lang.String)
+Also provides a tool to insert the exported csv's into an existing excel file.
 
-## Run with
+Additionally, it allows to automatically backup and rename the existing excel files for history purposes.
+
+## How to run
+
+### You need an Atlassian API token
+Request it at
+https://id.atlassian.com/manage-profile/security/api-tokens
+
+### Run with
 VM Option :
     -Dspring.config.additional-location=file:credentials.properties
 containing the configuration
-(in IntelliJ, you have to add this in the Run Configuration as VM Option, this is not always visible in the dialog)
 
-## Request an Atlassian API token
-https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/
-https://id.atlassian.com/manage-profile/security/api-tokens
+### Configuration of the Jira Export
+More examples under config-samples folder.
 
-## Uses the following REST API's
-To retrieve the fields to get the field id's
-https://developer.atlassian.com/cloud/jira/platform/rest/v2/api-group-issue-fields/#api-rest-api-2-field-get
-To retrieve the actual issues
-https://developer.atlassian.com/cloud/jira/platform/rest/v2/api-group-issue-search/#api-rest-api-2-search-post
-
-## Parameters
-To configure in a properties file, e.g. export-PROJECT.properties
-
+#### Parameters
+```
 jira.api.url= https://<yourcompany>.atlassian.net
 jira.api.user= email address
 jira.api.token= your API token (see above)
@@ -34,9 +32,9 @@ export.format.csv.seperator=^
 export.format.number.seperator=,
 export.format.date=dd/MM/yyyy
 export.filename=File path to write the CSV file to
-
-## ExportColumnsTreatment possibilities
-
+```
+#### ExportColumnsTreatment possibilities
+```
 KEY : The Jira ticket key
 ISSUE_TYPE : The type of the ticket, e.g. Story, Bug, Task
 STATUS : The status of the ticket
@@ -50,3 +48,14 @@ LAST_SPRINT : The last sprint of the ticket
 LINKED_ISSUE_PARENT_OF : The parent issue of the ticket, using the linked issues with the type "Child of"
 PARENT_KEY : The parent key of the ticket
 FIX_VERSIONS : All the fix versions of the ticket
+```
+
+### Configuration of the Excel Import
+Example under config-samples folder.
+```
+excel.file.input=Target excel file path
+excel.file.output=Output excel file path
+csv.sheet.mappings=Mappings of csv's to Excel tabs, specifying rows to skip if necessary (1 is skip nothing). Seperated with |  exports/export-epics-company.csv,1,INPUT-PRJ-Epics,1
+csv.separator=Csv separator, e.g. ^ or ;
+csv.format.number.separator=,
+```
