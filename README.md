@@ -1,10 +1,8 @@
 # JiraExportRobot
 Robot to export Jira tickets, since the Jira Cloud only allows exporting 1000 entries
-Since Jira Cloud is not allowing to change the CSV delimiter, the only option is to export as HTML and parse it.
 
 ## Uses the jira-rest-java-client library
 https://docs.atlassian.com/jira-rest-java-client-parent/5.0.4/apidocs/com/atlassian/jira/rest/client/api/SearchRestClient.html#searchJql(java.lang.String)
-
 
 ## Run with
 VM Option :
@@ -23,7 +21,8 @@ To retrieve the actual issues
 https://developer.atlassian.com/cloud/jira/platform/rest/v2/api-group-issue-search/#api-rest-api-2-search-post
 
 ## Parameters
-To configure in credentials.properties
+To configure in a properties file, e.g. export-PROJECT.properties
+
 jira.api.url= https://<yourcompany>.atlassian.net
 jira.api.user= email address
 jira.api.token= your API token (see above)
