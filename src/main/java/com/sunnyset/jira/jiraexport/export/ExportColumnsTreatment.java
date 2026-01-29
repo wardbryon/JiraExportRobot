@@ -80,7 +80,7 @@ public enum ExportColumnsTreatment {
         SUMMARY {
             @Override
             public String treat(Issue value, String column, ExportWriter.ExportConfig exportConfig) {
-                return value.getSummary();
+                return value.getSummary().replace("\n", " ").replace("\r", " ");
             }
         },
         ASSIGNEE {
