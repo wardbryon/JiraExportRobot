@@ -48,6 +48,8 @@ LAST_SPRINT : The last sprint of the ticket
 LINKED_ISSUE_PARENT_OF : The parent issue of the ticket, using the linked issues with the type "Child of"
 PARENT_KEY : The parent key of the ticket
 FIX_VERSIONS : All the fix versions of the ticket
+STATUS_DAYS: Days in particular status
+STATUS_TIME: Days,Hour,Minutes in particular status
 ```
 
 ### Configuration of the Excel Import
