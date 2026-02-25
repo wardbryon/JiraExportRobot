@@ -203,6 +203,16 @@ public enum ExportColumnsTreatment {
                 return new StatusChangeCompute(issue.getChangelog()).timeInStatus(column);
             }
         },
+        STATUS_DAYS {
+            @Override
+            public String treat(Issue issue, String column, ExportWriter.ExportConfig exportConfig) {
+                if(issue.getChangelog() == null || !issue.getChangelog().iterator().hasNext()){
+                    LoggerFactory.getLogger(ExportColumnsTreatment.class).error("No change logs present");
+                    return "";
+                }
+                return new StatusChangeCompute(issue.getChangelog()).daysInStatus(column);
+            }
+        },
         FIX_VERSIONS {
             @Override
             public String treat(Issue issue, String column, ExportWriter.ExportConfig exportConfig) {

@@ -69,7 +69,23 @@ public class StatusChangeCompute {
         return String.format("%dd %02dh %02dm", days, hours, minutes);
     }
 
+    String formatDurationAsDays(Duration d) {
+        if(d == null) return "";
+        long days = d.toDays();
+        return String.format("%d", days);
+    }
+
     public String timeInStatus(String column) {
+        Map<String, Duration> aggregated = extractDurations();
+        return formatDuration(aggregated.get(column));
+    }
+
+    public String daysInStatus(String column) {
+        Map<String, Duration> aggregated = extractDurations();
+        return formatDurationAsDays(aggregated.get(column));
+    }
+
+    private Map<String, Duration> extractDurations() {
         List<StatusDuration> statusDurations = computeStatusDurations(extractStatusChanges(), created());
         Map<String, Duration> aggregated = statusDurations.stream()
                 .collect(Collectors.groupingBy(
@@ -80,7 +96,7 @@ public class StatusChangeCompute {
                                 Duration::plus
                         )
                 ));
-        return formatDuration(aggregated.get(column));
+        return aggregated;
     }
 
     private DateTime created() {
